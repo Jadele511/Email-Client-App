@@ -37,10 +37,8 @@
           <p class="app-section">
 					Click below to send an email!
 				</p>
-          
 
           <div class="app-section" id="contact-list">
-					
 					
 				</div>
 
@@ -59,6 +57,10 @@
 
 			<div class="app-content"> 
 
+				 <div class="app-section" id="message">
+					
+				</div>
+
 				<div class="app-section">
 					From: <input class="app-input" id="sender-email" placeholder="Sender Email Address">
 				</div>
@@ -68,8 +70,8 @@
 				</div>
 
 				<form class="app-section">
-					<input class="app-input" name="subject" placeholder="Subject">
-					<textarea class="app-input" name="message" placeholder="Message"></textarea>
+					<input class="app-input" name="subject" placeholder="Subject" id="subject">
+					<textarea class="app-input" name="message" placeholder="Message" id="content"></textarea>
 					<div class="app-button green app-submit" id="send-button">Send</div>
 				</form>
 			</div>
@@ -139,6 +141,8 @@
 
       App.controller('sendemail', function (page) {
 
+      	$(page).find("#message").hide();
+
       	 if (typeof localStorage !== 'undefined') { 
 
       	 	if (localStorage.getItem("sender-email") !== null) {
@@ -157,7 +161,35 @@
         
       	$(page).find("#send-button")
       	.clickable()
-      	.on('click', function(){  
+      	.on('click', function(){ 
+
+	      	$.ajax({
+			  type: 'GET',
+			  url: 'http://chanvn.com/9_App/emailclientapp/sendemail.php',
+			  // data to be added to query string:
+			  data: { to: $("#recipient-email").val() , from: $("#sender-email").val(), subject: $("#subject").val(), content: $("#content").val() },
+			  // type of data we are expecting in return:
+			  dataType: 'jsonp',
+			  timeout: 300,
+			  context: $('body'),
+			  success: function(data){
+			    
+			    if (data.success == true) {
+
+			    	$(page).find("#message").html("Your email was sent successfully").show();
+			    
+			    } else {
+
+					$(page).find("#message").html("Your email could not be send.Please try again").show();			    	
+			    }
+
+			  },
+			  error: function(xhr, type){
+
+			   $(page).find("#message").html("Your email could not be send.Please try again").show();	
+
+			  }
+			}); 
 
       		 if (typeof localStorage !== 'undefined') {
 
@@ -191,6 +223,7 @@
       		 } else {
 
       		 	alert("failed to store data");
+
       		 }
       	})
       });
